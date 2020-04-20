@@ -6,7 +6,7 @@ const resolve = dir => {
 
 console.log(process.env.VUE_APP_API_URL);
 module.exports = {
-    publicPath: './',
+    publicPath: '/',
     chainWebpack: config => {
         // 快捷路径地址，可自定义键值对
         config.resolve.alias.set('@', resolve('src'));
