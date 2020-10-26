@@ -8,4 +8,14 @@ export default [{
     name: 'swiper',
     component: () =>
         import ('@/views/swiper.vue')
-}];
+},{
+    path: '/picker',
+    name: 'picker',
+    component: () =>
+        import ('@/views/picker.vue')
+},{
+    path: '/swipeCell',
+    name: 'swipeCell',
+    component: () =>
+        import ('@/views/swipe-cell.vue')
+}]

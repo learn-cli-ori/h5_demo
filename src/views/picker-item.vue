@@ -1,102 +1,105 @@
 <template>
     <section>
-        <!-- <p class="f-10">测试</p>
-        <button @click="test" class="f-10">接口测试</button> -->
         <div
-            class="flex width text-center relative color-black"
-            style="height:200px;overflow: hidden;"
+            class="flex width text-center relative color-black picker-item-container-ig"
         >
             <div
                 class="flex-1"
-                ref="picker-box"
                 @touchstart="touchStart"
                 @touchmove="touchMove"
                 @touchend="touchEnd"
             >
-                <ul ref="pickerRoller">
+                <ul ref="pickerItemRoller" class="picker-item-roller-ig">
                     <li
                         v-for="(item, index) in list"
                         :key="index"
                         class="fz-15"
-                        style="height:40px"
                     >
-                        {{ item }}
+                        {{ item[columnValue] }}
                     </li>
                 </ul>
             </div>
-            <div class="picker-zoom" style="height: 40px;"></div>
-            <div class="picker-mask"></div>
+            <div class="picker-item-zoom-ig"></div>
+            <div class="picker-item-mask"></div>
         </div>
     </section>
 </template>
 <script>
-import { test, test_post } from "@/api/test";
 export default {
+    name: "pickerItem",
+    props: {
+        list: {
+            type: Array,
+            default: () => [],
+        },
+        columnKey: {
+            type: String,
+            default: "key",
+        },
+        columnValue: {
+            type: String,
+            default: "value",
+        },
+    },
     data() {
         return {
-            list: ["广州", "北京", "上海", "新疆", "澳门"],
-            testData: [],
-            msg: "",
-            moveDistance: 0,
             // 高度
             lineSpacing: 40,
-            scrollTop: 0, //滚动距离
+            moveDistance: 0, //滚动距离
             startTouch: 0,
         };
     },
 
     methods: {
-        async test() {
-            let t = await test_post({ sex: this.msg });
-            console.log(t);
-        },
-
         touchStart(e) {
-            this.startTouch = this.scrollTop + e.targetTouches[0].pageY;
+            e.preventDefault();
+            this.startTouch = this.moveDistance + e.targetTouches[0].pageY;
         },
 
         touchMove(e) {
+            e.preventDefault();
             let move = e.targetTouches[0].pageY;
-            console.log(this.scrollTop);
             this.setTransform(this.startTouch - move); // 大于0 上拉  小于0 下滑
         },
 
         touchEnd(e) {
+            e.preventDefault();
             // 大于0 上拉  小于0 下滑
             let updateMove =
-                Math.round(this.scrollTop / this.lineSpacing) *
+                Math.round(this.moveDistance / this.lineSpacing) *
                 this.lineSpacing;
-
-            if (
-                Math.abs(updateMove) >
-                (this.list.length - 3) * this.lineSpacing
-            ) {
-                let flag = Math.sign(updateMove); // 判断正负数
-                updateMove = flag * (this.list.length - 3) * this.lineSpacing;
-            }
-
             this.setTransform(updateMove, "end");
+            this.getIndex();
+        },
+
+        getIndex() {
+            let index = this.moveDistance / this.lineSpacing + 2;
         },
 
         setTransform(distance, type) {
-            let max = this.lineSpacing * 3,
-                min = -this.lineSpacing * 3;
-            if (distance < min) {
-                distance = min;
-            } else if (distance > max) {
-                distance = max;
-            }
-
+            let max = this.lineSpacing * this.list.length, //80
+                min = -this.lineSpacing; //120
             if (type == "end") {
-                this.$refs.pickerRoller.style.transition =
+                if (distance < 0) {
+                    //下滑
+                    distance = 0;
+                } else if (distance >= this.list.length * 40) {
+                    distance = (this.list.length - 1) * 40; //40
+                }
+                this.$refs.pickerItemRoller.style.transition =
                     "transform 1000ms cubic-bezier(0.19, 1, 0.22, 1)";
             } else {
-                this.$refs.pickerRoller.style.transition = "";
+                if (distance < min) {
+                    distance = min;
+                } else if (distance > max) {
+                    distance = max;
+                }
+                this.$refs.pickerItemRoller.style.transition = "";
             }
 
-            this.$refs.pickerRoller.style.transform =
+            this.$refs.pickerItemRoller.style.transform =
                 "translate3d(0, " + -distance + "px, 0)";
-            this.scrollTop = distance;
+            this.moveDistance = distance;
         },
     },
 };
@@ -112,7 +115,7 @@ li {
     height: 40px;
     line-height: 40px;
 }
-.picker-mask {
+.picker-item-mask {
     position: absolute;
     top: 0;
     left: 0;
@@ -131,11 +134,13 @@ li {
     pointer-events: none;
 }
 
-.picker-zoom {
+.picker-item-zoom-ig {
     position: absolute;
     top: 50%;
+    width: 100%;
     right: 16px;
-    left: 16px;
+    height: 40px;
+    left: 0;
     z-index: 3;
     transform: translateY(-50%);
     pointer-events: none;
@@ -157,5 +162,20 @@ li {
         background-color: #ccc;
         height: 1px;
     }
+}
+
+.picker-item-roller-ig {
+    position: absolute;
+    width: 100%;
+    transform: translate3d(0, 0, 0);
+    top: 80px;
+    > li {
+        height: 40px;
+    }
+}
+
+.picker-item-container-ig {
+    height: 200px;
+    overflow: hidden;
 }
 </style>
