@@ -4,11 +4,13 @@ import { router } from '@/router/index';
 import store from '@/store/index';
 import './static/style/reset.scss';
 import VueAwesomeSwiper from 'vue-awesome-swiper'
-
+import '@babel/polyfill'
 // require styles
-import 'swiper/dist/css/swiper.css'
+import 'swiper/swiper-bundle.css'
+import Swiper2, {Navigation, Pagination} from 'swiper'; 
+Swiper2.use([Navigation, Pagination]); 
 
-Vue.use(VueAwesomeSwiper, /* { default global options } */)
+Vue.use(VueAwesomeSwiper)
 
 import 'lib-flexible';
 new Vue({
