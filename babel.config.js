@@ -1,5 +1,12 @@
 module.exports = {
   presets: [
-      '@vue/app'
-  ],
-}
+      [
+          "@babel/preset-env",
+          {
+              targets: "> 5%",
+              useBuiltIns: "usage"
+          },
+      ],
+  ]
+};
+// 
